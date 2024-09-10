@@ -1,0 +1,37 @@
+type Result_2 = 
+ variant {
+   err: text;
+   ok: record {
+         nat;
+         nat;
+       };
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: record {
+         nat;
+         nat;
+         nat;
+       };
+ };
+type Result = 
+ variant {
+   err: text;
+   ok: record {
+         float64;
+         float64;
+         float64;
+       };
+ };
+service : {
+  getGovernanceData: () -> (Result_2) query;
+  getHistoricalData: () -> (vec record {
+                                  int;
+                                  float64;
+                                  nat;
+                                }) query;
+  getNetworkStats: () -> (Result_1) query;
+  getTokenMetrics: () -> (Result) query;
+  updateDashboard: () -> ();
+}
