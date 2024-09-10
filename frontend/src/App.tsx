@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { backend } from 'declarations/backend';
-import { Box, Container, Grid, Typography, Card, CardContent, CircularProgress } from '@mui/material';
+import { Box, Container, Grid, Typography, Card, CardContent, CircularProgress, Button } from '@mui/material';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
@@ -36,52 +36,54 @@ const App: React.FC = () => {
   const [historicalData, setHistoricalData] = useState<HistoricalDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [tokenMetricsResult, networkStatsResult, governanceDataResult, historicalDataResult] = await Promise.all([
-          backend.getTokenMetrics(),
-          backend.getNetworkStats(),
-          backend.getGovernanceData(),
-          backend.getHistoricalData()
-        ]);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      await backend.updateDashboard();
+      const [tokenMetricsResult, networkStatsResult, governanceDataResult, historicalDataResult] = await Promise.all([
+        backend.getTokenMetrics(),
+        backend.getNetworkStats(),
+        backend.getGovernanceData(),
+        backend.getHistoricalData()
+      ]);
 
-        if ('ok' in tokenMetricsResult) {
-          setTokenMetrics({
-            price: tokenMetricsResult.ok[0],
-            marketCap: tokenMetricsResult.ok[1],
-            circulatingSupply: tokenMetricsResult.ok[2]
-          });
-        }
-
-        if ('ok' in networkStatsResult) {
-          setNetworkStats({
-            canisters: networkStatsResult.ok[0],
-            subnets: networkStatsResult.ok[1],
-            nodes: networkStatsResult.ok[2]
-          });
-        }
-
-        if ('ok' in governanceDataResult) {
-          setGovernanceData({
-            activeProposals: governanceDataResult.ok[0],
-            totalNeurons: governanceDataResult.ok[1]
-          });
-        }
-
-        setHistoricalData(historicalDataResult.map(([timestamp, price, canisters]) => ({
-          timestamp: Number(timestamp),
-          price: Number(price),
-          canisters: Number(canisters)
-        })));
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setLoading(false);
+      if ('ok' in tokenMetricsResult) {
+        setTokenMetrics({
+          price: tokenMetricsResult.ok[0],
+          marketCap: tokenMetricsResult.ok[1],
+          circulatingSupply: tokenMetricsResult.ok[2]
+        });
       }
-    };
 
+      if ('ok' in networkStatsResult) {
+        setNetworkStats({
+          canisters: networkStatsResult.ok[0],
+          subnets: networkStatsResult.ok[1],
+          nodes: networkStatsResult.ok[2]
+        });
+      }
+
+      if ('ok' in governanceDataResult) {
+        setGovernanceData({
+          activeProposals: governanceDataResult.ok[0],
+          totalNeurons: governanceDataResult.ok[1]
+        });
+      }
+
+      setHistoricalData(historicalDataResult.map(([timestamp, price, canisters]) => ({
+        timestamp: Number(timestamp),
+        price: Number(price),
+        canisters: Number(canisters)
+      })));
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -121,6 +123,9 @@ const App: React.FC = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           ICP Dashboard
         </Typography>
+        <Button variant="contained" color="primary" onClick={fetchData} style={{ marginBottom: '20px' }}>
+          Refresh Data
+        </Button>
         <Grid container spacing={3}>
           {tokenMetrics && (
             <>

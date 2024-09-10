@@ -1,6 +1,5 @@
 import Hash "mo:base/Hash";
 import Nat "mo:base/Nat";
-import Text "mo:base/Text";
 
 import Float "mo:base/Float";
 import Int "mo:base/Int";
@@ -10,6 +9,7 @@ import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Option "mo:base/Option";
 import Result "mo:base/Result";
+import Text "mo:base/Text";
 
 actor {
   // Stable variables
@@ -21,8 +21,8 @@ actor {
   // Mutable variable
   var last_update : Int = 0;
 
-  // Helper function to update data
-  func updateData() : async () {
+  // Helper function to simulate data fetching
+  func fetchData() : async () {
     // Simulating data fetching
     token_metrics := ?(45000.0, 10000000000.0, 500000000.0);
     network_stats := ?(100000, 50, 1000);
@@ -64,7 +64,7 @@ actor {
   };
 
   public shared func updateDashboard() : async () {
-    await updateData();
+    await fetchData();
   };
 
   // System functions
